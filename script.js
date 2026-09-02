@@ -100,3 +100,68 @@ function searchSongs() {
     return;
 
   }
+
+
+  const filteredSongs =
+    songs.filter(song => {
+
+      return song.song &&
+        song.song
+          .toLowerCase()
+          .includes(keyword);
+
+    });
+
+
+  resultCount.textContent =
+    `${filteredSongs.length}件見つかりました`;
+
+
+  if (filteredSongs.length === 0) {
+
+    results.innerHTML =
+      "見つかりませんでした";
+
+    return;
+
+  }
+
+
+  results.innerHTML =
+    filteredSongs
+      .map(song => `
+
+        <div class="card">
+
+          <h2>
+            🎵 ${song.song}
+          </h2>
+
+          <p>
+            📅 配信日：${song.date}
+          </p>
+
+          <p>
+            📺 ${song.title}
+          </p>
+
+          <p>
+            ⏰ ${song.time}頃
+          </p>
+
+          <a
+            href="${song.url}"
+            target="_blank"
+          >
+            アーカイブを見る
+          </a>
+
+        </div>
+
+      `)
+      .join("");
+
+}
+
+
+loadSongs();

@@ -103,12 +103,24 @@ function searchSongs() {
 
 
   const filteredSongs =
-    songs.filter(song => {
+  songs
+    .filter(song => {
 
       return song.song &&
         song.song
           .toLowerCase()
           .includes(keyword);
+
+    })
+    .sort((a, b) => {
+
+      const dateA =
+        new Date(a.date);
+
+      const dateB =
+        new Date(b.date);
+
+      return dateB - dateA;
 
     });
 

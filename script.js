@@ -12,10 +12,15 @@ async function loadSongs() {
   try {
 
     const response = await fetch(
-  CSV_URL + "?t=" + Date.now()
-);
+      CSV_URL + "&t=" + Date.now(),
+      {
+        cache: "no-store"
+      }
+    );
 
     const csvText = await response.text();
+
+    console.log("読み込んだCSV:", csvText);
 
     songs = parseCSV(csvText);
 
@@ -35,35 +40,34 @@ async function loadSongs() {
 
 function parseCSV(csvText) {
 
-  const lines =
-    csvText
-      .trim()
-      .split("\n");
+  const lines = csvText
+    .trim()
+    .split(/\r?\n/);
 
-  const headers =
-    lines[0]
-      .split(",");
+  const headers = lines[0]
+    .split(",")
+    .map(header => header.trim());
 
 
   return lines
     .slice(1)
     .map(line => {
 
-      const values =
-        line.split(",");
+      const values = line
+        .split(",")
+        .map(value => value.trim());
+
 
       const song = {};
 
-      headers.forEach(
-        (header, index) => {
 
-          song[
-            header.trim()
-          ] =
-            values[index]?.trim() || "";
+      headers.forEach((header, index) => {
 
-        }
-      );
+        song[header] =
+          values[index] || "";
+
+      });
+
 
       return song;
 
@@ -80,10 +84,9 @@ searchInput.addEventListener(
 
 function searchSongs() {
 
-  const keyword =
-    searchInput.value
-      .trim()
-      .toLowerCase();
+  const keyword = searchInput.value
+    .trim()
+    .toLowerCase();
 
 
   if (keyword === "") {
@@ -97,65 +100,3 @@ function searchSongs() {
     return;
 
   }
-
-
-  const filteredSongs =
-    songs.filter(song =>
-      song.song
-        .toLowerCase()
-        .includes(keyword)
-    );
-
-
-  resultCount.textContent =
-    `${filteredSongs.length}件見つかりました`;
-
-
-  if (filteredSongs.length === 0) {
-
-    results.innerHTML =
-      "見つかりませんでした";
-
-    return;
-
-  }
-
-
-  results.innerHTML =
-    filteredSongs
-      .map(song => `
-
-        <div class="card">
-
-          <h2>
-            🎵 ${song.song}
-          </h2>
-
-          <p>
-            📅 配信日：${song.date}
-          </p>
-
-          <p>
-            📺 ${song.title}
-          </p>
-
-          <p>
-            ⏰ ${song.time}頃
-          </p>
-
-          <a
-            href="${song.url}"
-            target="_blank"
-          >
-            アーカイブを見る
-          </a>
-
-        </div>
-
-      `)
-      .join("");
-
-}
-
-
-loadSongs();

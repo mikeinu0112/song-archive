@@ -1,0 +1,21 @@
+body {
+  font-family: sans-serif;
+  margin: 40px;
+}
+
+main {
+  max-width: 700px;
+  margin: auto;
+}
+
+#searchInput {
+  width: 100%;
+  padding: 12px;
+  font-size: 16px;
+}
+
+.card {
+  border: 1px solid #ccc;
+  padding: 20px;
+  margin-top: 20px;
+}

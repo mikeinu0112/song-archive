@@ -5,7 +5,8 @@ let songs = [];
 const searchInput = document.getElementById("searchInput");
 const results = document.getElementById("results");
 const resultCount = document.getElementById("resultCount");
-
+const suggestions =
+  document.getElementById("suggestions");
 
 async function loadSongs() {
 
@@ -78,15 +79,102 @@ function parseCSV(csvText) {
 
 searchInput.addEventListener(
   "input",
-  searchSongs
+  () => {
+
+    searchSongs();
+
+    showSuggestions();
+
+  }
 );
 
+function normalizeText(text) {
+
+  return text
+    .toLowerCase()
+    .normalize("NFKC")
+    .replace(/\s+/g, "")
+    .replace(/[ァ-ヶ]/g, char =>
+      String.fromCharCode(
+        char.charCodeAt(0) - 0x60
+      )
+    );
+
+}
+
+function showSuggestions() {
+
+  const keyword =
+    normalizeText(searchInput.value);
+
+
+  if (keyword === "") {
+
+    suggestions.innerHTML = "";
+
+    return;
+
+  }
+
+
+  // 曲名とアーティスト名の候補を集める
+  const suggestionList =
+    songs
+      .filter(song => {
+
+        const songName =
+          normalizeText(song.song || "");
+
+        const artistName =
+          normalizeText(song.artist || "");
+
+        return (
+          songName.includes(keyword) ||
+          artistName.includes(keyword)
+        );
+
+      })
+      .slice(0, 8);
+
+
+ suggestions.innerHTML =
+  suggestionList
+    .map(song => `
+
+      <div
+        class="suggestion-item"
+        data-song="${song.song}"
+      >
+
+        ${song.song}
+        - ${song.artist}
+
+      </div>
+
+    `)
+    .join("");
+  document
+    .querySelectorAll(".suggestion-item")
+    .forEach(item => {
+
+      item.addEventListener("click", () => {
+
+        searchInput.value =
+          item.dataset.song;
+
+        searchSongs();
+
+        suggestions.innerHTML = "";
+
+      });
+
+    });
+}
 
 function searchSongs() {
 
-  const keyword = searchInput.value
-    .trim()
-    .toLowerCase();
+const keyword =
+  normalizeText(searchInput.value);
 
 
   if (keyword === "") {
@@ -106,10 +194,16 @@ function searchSongs() {
   songs
     .filter(song => {
 
-      return song.song &&
-        song.song
-          .toLowerCase()
-          .includes(keyword);
+      const songName =
+  normalizeText(song.song || "");
+
+const artistName =
+  normalizeText(song.artist || "");
+
+return (
+  songName.includes(keyword) ||
+  artistName.includes(keyword)
+);
 
     })
     .sort((a, b) => {
@@ -150,6 +244,10 @@ function searchSongs() {
           </h2>
 
           <p>
+  🎤 アーティスト：${song.artist}
+</p>
+
+          <p>
             📅 配信日：${song.date}
           </p>
 
@@ -176,4 +274,20 @@ function searchSongs() {
 }
 
 
-loadSongs();
+loadSongs().then(() => {
+
+  const params = new URLSearchParams(
+    window.location.search
+  );
+
+  const songFromURL = params.get("song");
+
+  if (songFromURL) {
+
+    searchInput.value = songFromURL;
+
+    searchSongs();
+
+  }
+
+});

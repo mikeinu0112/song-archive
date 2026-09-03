@@ -19,3 +19,15 @@ main {
   padding: 20px;
   margin-top: 20px;
 }
+
+#suggestions {
+  margin-top: 5px;
+  margin-bottom: 15px;
+}
+
+.suggestion-item {
+  padding: 10px;
+  border: 1px solid #ccc;
+  background: white;
+  cursor: pointer;
+}
